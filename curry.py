@@ -28,6 +28,13 @@ class CurryTest(unittest.TestCase):
         add3 = curry(lambda a, b, c: a + b + c)
         self.assertEqual(6, add3(1)(2)(3))
 
+    def test_args_dont_persist(self):
+        add = curry(lambda a, b: a + b)
+        add1 = add(1)
+        add2 = add(2)
+        self.assertEqual(2, add1(1))
+        self.assertEqual(3, add2(1))
+
     def test_mutable_args(self):
         def concat(a, b):
             ret = []
