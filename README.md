@@ -6,3 +6,4 @@ Features:
 * [ ] functions with any number of arguments
 * [ ] works with builtin functions
 * [ ] pass keyword arguments
+* [ ] preserve the name of passed functions
