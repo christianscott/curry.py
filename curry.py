@@ -1,10 +1,13 @@
-from inspect import signature
+from inspect import signature, isclass
 import sys
 import unittest
 
 
 def curry(fun):
-    arg_count = len(signature(fun).parameters)
+    if isclass(fun):
+        arg_count = len(signature(fun.__call__).parameters)
+    else:
+        arg_count = len(signature(fun).parameters)
 
     def curried(*old_args, **old_kwargs):
         args_store = list(old_args)
