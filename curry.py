@@ -28,7 +28,12 @@ class CurryTest(unittest.TestCase):
         self.assertEqual(6, add3(1)(2)(3))
 
     def test_mutable_args(self):
-        concat = curry(lambda a, b: a.extend(b))
+        def concat(a, b):
+            ret = []
+            ret.extend(a)
+            ret.extend(b)
+            return ret
+        concat = curry(concat)
         self.assertEqual([1, 2, 3, 4], concat([1, 2])([3, 4]))
 
     def test_builtin(self):
@@ -53,6 +58,7 @@ class CurryTest(unittest.TestCase):
         def add(a, b): return a + b
         add = curry(add)
         self.assertEqual('add', add.__name__)
+        self.assertEqual('add', add(1).__name__)
 
 if __name__ == '__main__':
     unittest.main()
