@@ -5,16 +5,27 @@ import unittest
 
 def curry(fun):
     arg_count = len(signature(fun).parameters)
-    args = []
 
-    def curried(arg):
-        args.append(arg)
+    def curried(*old_args, **old_kwargs):
+        args_store = list(old_args)
+        kwargs_store = old_kwargs
 
-        if len(args) == arg_count:
-            return fun(*args)
-        else:
-            return curried
-        
+        def _inner(*new_args, **new_kwargs):
+            nonlocal args_store, kwargs_store
+            new_args = args_store + list(new_args)
+
+            kwargs_store.update(new_kwargs)
+            args_store = new_args
+
+            _inner.__name__ = fun.__name__
+            if len(args_store) + len(kwargs_store) == arg_count:
+                return fun(*args_store, **kwargs_store)
+            else:
+                return _inner
+
+        _inner.__name__ = fun.__name__
+        return _inner
+
     curried.__name__ = fun.__name__
     return curried
 
@@ -46,7 +57,7 @@ class CurryTest(unittest.TestCase):
 
     def test_builtin(self):
         add_1_to_each = curry(map)(lambda x: x + 1)
-        self.assertEqual([2, 3, 4, 5], 
+        self.assertEqual([2, 3, 4, 5],
                          list(add_1_to_each([1, 2, 3, 4])))
 
     def test_positional_kwargs(self):
