@@ -39,8 +39,21 @@ def main():
     print(query('select * from users'))
 ```
 
+# How does it work?
+
+The idea is to return a function that keeps accepting arguments (one at a time) until it has enough of them to call the wrapped function. Currently, this is done by storing each of the arguments in a list, then calling the wrapped function with all of those args once the length of the list reaches the number of arguments the wrapped function takes.
+
+The list of arguments is preserved using a concept called a _closure_. This is kind of like a tiny, encapsulated bit of state. I'm not exactly sure how the updates to the state are preserved when `curried` returns itself, but I think this is because args (and therefore the closure) is being mutated.
+
+My solution in its' current form isn't able to handle keyword arguments being passed to it. They work as postional arguments, 
+
+# Goals for the project
+
 Features:
-* [ ] functions with any number of arguments
+* [x] functions with any number of arguments
 * [ ] works with builtin functions
-* [ ] pass keyword arguments
-* [ ] preserve the name of passed functions
+* [ ] pass keyword arguments to the curried function
+* [x] preserve the name of passed functions
+* [ ] think of some way to tell the function to be called with the arguments it has so far. This would allow for default arguments to be used. There are two approaches that I can think of:
+  * `curried(1)(2, done=True)` - has the benefit of being more flexible, can use as many of the default arguments as we like but is a bit less elegant
+  * `@curry(use_default=True)` - simpler but less flexible
