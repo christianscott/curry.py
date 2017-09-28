@@ -53,11 +53,6 @@ class CurryTest(unittest.TestCase):
     def test_preserve_name(self):
         def add(a, b): return a + b
         add = curry(add)
-        self.assertEqual('add', add)
-
-    def test_preserve_name(self):
-        def add(a, b): return a + b
-        add = curry(add)
         self.assertEqual('add', add.__name__)
         self.assertEqual('add', add(1).__name__)
 
