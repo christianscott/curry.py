@@ -15,6 +15,7 @@ def curry(fun):
         else:
             return curried
         
+    curried.__name__ = fun.__name__
     return curried
 
 
