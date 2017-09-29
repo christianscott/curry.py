@@ -72,8 +72,10 @@ class CurryTest(unittest.TestCase):
         self.assertEqual(3, add_default(1)(2))
 
     def test_kwargs(self):
-        add_default = curry(lambda a, b=10: a + b, default=True)
-        self.assertEqual(12, add_default(2))
+        @curry
+        def add(a, *, b):
+            return a + b
+        self.assertEqual(12, add(2)(b=10))
 
     def test_preserve_name(self):
         def add(a, b): return a + b
