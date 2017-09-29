@@ -1,3 +1,4 @@
+from functools import wraps
 from inspect import signature, isclass
 import sys
 import unittest
@@ -12,11 +13,13 @@ def get_arg_count(fun):
 
 def curry(fun):
     arg_count = get_arg_count(fun)
-
+    
+    @wraps(fun)
     def curried(*old_args, **old_kwargs):
         args_store = list(old_args)
         kwargs_store = old_kwargs
-
+        
+        @wraps(fun)
         def _inner(*new_args, **new_kwargs):
             nonlocal args_store, kwargs_store
             new_args = args_store + list(new_args)
@@ -24,16 +27,13 @@ def curry(fun):
             kwargs_store.update(new_kwargs)
             args_store = new_args
 
-            _inner.__name__ = fun.__name__
             if len(args_store) + len(kwargs_store) == arg_count:
                 return fun(*args_store, **kwargs_store)
             else:
                 return _inner
 
-        _inner.__name__ = fun.__name__
         return _inner
 
-    curried.__name__ = fun.__name__
     return curried
 
 
