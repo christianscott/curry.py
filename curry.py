@@ -13,28 +13,27 @@ def get_arg_count(fun):
 
 def curry(fun):
     arg_count = get_arg_count(fun)
-    
-    @wraps(fun)
-    def curried(*old_args, **old_kwargs):
-        args_store = list(old_args)
-        kwargs_store = old_kwargs
-        
-        @wraps(fun)
-        def _inner(*new_args, **new_kwargs):
-            nonlocal args_store, kwargs_store
-            new_args = args_store + list(new_args)
 
-            kwargs_store.update(new_kwargs)
-            args_store = new_args
+    @wraps(fun)
+    def curried_factory(*initial_args, **initial_kwargs):
+        args_store = list(initial_args)
+        kwargs_store = initial_kwargs
+
+        @wraps(fun)
+        def curried(*args, **kwargs):
+            nonlocal args_store, kwargs_store
+
+            kwargs_store.update(kwargs)
+            args_store = args_store + list(args)
 
             if len(args_store) + len(kwargs_store) == arg_count:
                 return fun(*args_store, **kwargs_store)
             else:
-                return _inner
+                return curried
 
-        return _inner
+        return curried
 
-    return curried
+    return curried_factory
 
 
 class CurryTest(unittest.TestCase):
