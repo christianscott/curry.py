@@ -1,3 +1,5 @@
+"""Utility for currying functions."""
+
 from functools import wraps
 from inspect import signature, isclass
 import sys
@@ -5,6 +7,12 @@ import unittest
 
 
 def get_arg_count(fun):
+    """Return the number of parameters a function takes.
+
+    Builtins, by default, refer to their class rather than their function call.
+    Referring to their __call__ instance allows them to operate as any other
+    function when curried.
+    """
     if isclass(fun):
         return len(signature(fun.__call__).parameters)
     else:
@@ -12,6 +20,7 @@ def get_arg_count(fun):
 
 
 def curry(fun):
+    """Return a curried version of the supplied function."""
     arg_count = get_arg_count(fun)
 
     @wraps(fun)
