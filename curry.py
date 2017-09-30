@@ -31,8 +31,8 @@ def curry(fun):
         @wraps(fun)
         def curried(*args, **kwargs):
             nonlocal args_store, kwargs_store
-
             kwargs_store.update(kwargs)
+
             args_store = args_store + list(args)
 
             if len(args_store) + len(kwargs_store) == arg_count:
@@ -40,10 +40,12 @@ def curry(fun):
             else:
                 return curried
 
+        if len(args_store) + len(kwargs_store) == arg_count:
+                return fun(*args_store, **kwargs_store)
+        
         return curried
 
     return curried_factory
-
 
 class CurryTest(unittest.TestCase):
     def test_two_args(self):
@@ -93,4 +95,5 @@ class CurryTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
 
