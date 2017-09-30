@@ -33,7 +33,7 @@ import database
 @curry
 def query(connection, query_string):
     return connection.query(query_string)
-    
+
 def main():
     query = query(database)
     print(query('select * from users'))
@@ -41,19 +41,11 @@ def main():
 
 # How does it work?
 
-The idea is to return a function that keeps accepting arguments (one at a time) until it has enough of them to call the wrapped function. Currently, this is done by storing each of the arguments in a list, then calling the wrapped function with all of those args once the length of the list reaches the number of arguments the wrapped function takes.
-
-The list of arguments is preserved using a concept called a _closure_. This is kind of like a tiny, encapsulated bit of state. I'm not exactly sure how the updates to the state are preserved when `curried` returns itself, but I think this is because args (and therefore the closure) is being mutated.
-
-My solution in its' current form isn't able to handle keyword arguments being passed to it. They work as postional arguments, 
-
-# How does the code achieve this ?
-
-The 'curry' function takes an input object and calls the 'get_arg_count' function. This function checks if the input it recieves is a function or a class definition. And based on that, it returns the number of parameters required by the input function/class to execute.
+The 'curry' function takes an input object and calls the 'get_arg_count' function. This function checks if the input it receives is a function or a class definition. And based on that, it returns the number of parameters required by the input function/class to execute.
 
 Now, we use @wraps(fun) to prevent loss of meta data of the function. When a decorator function decorates a decorated function, properties such as __name__ and DocString of the decorated function gets replaced with that of the decorator function. This is less than helpful. To prevent this, we use the @wraps(fun).
 
-This lambda function takes 3 inputs and finds the sum of the three. Our curried function should be able to run 3 times, taking one input at each time. 
+This lambda function takes 3 inputs and finds the sum of the three. Our curried function should be able to run 3 times, taking one input at each time.
 
 ```python
 def curry(fun):
@@ -68,7 +60,7 @@ def curry(fun):
         When the curried function is called for the very first time, it creates a list to store the
         positional arguments and similarly a key-valued structure for the keyword arguments.
         '''
-        
+
         args_store = list(initial_args)
         kwargs_store = initial_kwargs
 
@@ -76,19 +68,19 @@ def curry(fun):
         def curried(*args, **kwargs):
             '''
             On subsequent calls to the curried function, we store the new incoming arguments along
-            with our initial arguments. And since the initial storage is neither in the local nor the 
+            with our initial arguments. And since the initial storage is neither in the local nor the
             global scope we instruct python about the scope using the nonlocal keyword.
             '''
-         
+
             nonlocal args_store, kwargs_store
-            
+
             '''
-            At this point, we update the initial storage with the new inputs we obtain and we keep doing this 
+            At this point, we update the initial storage with the new inputs we obtain and we keep doing this
             until we have enough inputs to actually execute the function.
             '''
             kwargs_store.update(kwargs)
             args_store = args_store + list(args)
-            
+
             if len(args_store) + len(kwargs_store) == arg_count:
                 '''
                 If we have enough arguments to run the function, the function gets executed
