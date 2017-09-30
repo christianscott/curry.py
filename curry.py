@@ -41,7 +41,7 @@ def curry(fun):
                 return curried
 
         if len(args_store) + len(kwargs_store) == arg_count:
-                return fun(*args_store, **kwargs_store)
+            return fun(*args_store, **kwargs_store)
         
         return curried
 
