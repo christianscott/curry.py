@@ -5,7 +5,7 @@ from curry import curry
 class CurryTest(unittest.TestCase):
 
     def test_one_args(self):
-        add0 = curry(lambda a: a)
+        id = curry(lambda a: a)
         self.assertEqual(1, add0(1))
 
     def test_two_args(self):
