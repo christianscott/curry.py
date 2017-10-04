@@ -4,6 +4,10 @@ from curry import curry
 
 class CurryTest(unittest.TestCase):
 
+    def test_one_args(self):
+        id = curry(lambda a: a)
+        self.assertEqual(1, id(1))
+
     def test_two_args(self):
         add = curry(lambda a, b: a + b)
         self.assertEqual(3, add(1)(2))
