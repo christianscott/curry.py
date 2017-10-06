@@ -1,7 +1,6 @@
 """Utility for currying functions."""
 
-import sys
-from functools import wraps
+from functools import update_wrapper
 from inspect import signature, isclass
 
 
@@ -16,30 +15,25 @@ def get_arg_count(fun):
         return len(signature(fun.__call__).parameters)
     return len(signature(fun).parameters)
 
-
-def curry(fun):
+class _CurriedFactory:
     """Return a curried version of the supplied function."""
-    arg_count = get_arg_count(fun)
 
-    @wraps(fun)
-    def curried_factory(*initial_args, **initial_kwargs):
-        args_store = list(initial_args)
-        kwargs_store = initial_kwargs
+    def __init__(self, fun, args=None, kwargs=None):
+        self.fun = fun
+        self.arg_count = get_arg_count(fun)
+        self.args = args if args is not None else tuple()
+        self.kwargs = kwargs if kwargs is not None else dict()
+        update_wrapper(self, self.fun)
 
-        @wraps(fun)
-        def curried(*args, **kwargs):
-            nonlocal args_store, kwargs_store
-            kwargs_store.update(kwargs)
+    def __call__(self, *args, **kwargs):
+        combined_args = self.args + args
+        combined_kwargs = self.kwargs.copy()
+        combined_kwargs.update(kwargs)
+        if len(combined_args) + len(combined_kwargs) == self.arg_count:
+            return self.fun(*combined_args, **combined_kwargs)
+        else:
+            return _CurriedFactory(
+                self.fun, args=combined_args, kwargs=combined_kwargs
+            )
 
-            args_store = args_store + list(args)
-
-            if len(args_store) + len(kwargs_store) == arg_count:
-                return fun(*args_store, **kwargs_store)
-            else:
-                return curried
-
-        if len(args_store) + len(kwargs_store) == arg_count:
-            return fun(*args_store, **kwargs_store)
-
-        return curried
-    return curried_factory
+curry = _CurriedFactory
