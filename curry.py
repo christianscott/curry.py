@@ -38,6 +38,8 @@ def curry(fun):
             if done_keyword in kwargs_store:
                 done_evaluation = kwargs_store.pop(done_keyword,False)
             return done_evaluation
+        if done_eval():
+            return fun(*args_store, **kwargs_store)
 
         @wraps(fun)
         def curried(*args, **kwargs):
