@@ -26,18 +26,34 @@ def curry(fun):
         args_store = list(initial_args)
         kwargs_store = initial_kwargs
 
+        def done_eval():
+            """
+            If done_keyword is present in kwargs_store, removes it 
+            from kwargs_store and returns it otherwise returns False.
+            """
+            done_keyword = "done"
+            done_evaluation = False
+            if done_keyword in kwargs_store:
+                done_evaluation = kwargs_store.pop(done_keyword,False)
+            return done_evaluation
+        if done_eval():
+            return fun(*args_store, **kwargs_store)
+
         @wraps(fun)
         def curried(*args, **kwargs):
             nonlocal args_store, kwargs_store
             kwargs_store.update(kwargs)
-
             args_store = args_store + list(args)
 
+            if done_eval():
+                return fun(*args_store, **kwargs_store)
             if len(args_store) + len(kwargs_store) == arg_count:
                 return fun(*args_store, **kwargs_store)
             else:
                 return curried
 
+        if done_eval():
+            return fun(*args_store, **kwargs_store)
         if len(args_store) + len(kwargs_store) == arg_count:
             return fun(*args_store, **kwargs_store)
 
