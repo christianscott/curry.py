@@ -23,6 +23,20 @@ class CurryTest(unittest.TestCase):
         self.assertEqual(2, add1(1))
         self.assertEqual(3, add2(1))
 
+    def test_args_dont_persist_after_first(self):
+        factory = curry(lambda a, b, c: None)
+        curried = factory(1)
+        given_b = curried(2)
+        given_c = curried(3)
+        self.assertIsNotNone(given_c)
+
+    def test_kwargs_dont_persist(self):
+        factory = curry(lambda a=None, b=None, c=None: None)
+        curried = factory(a=None)
+        given_b = curried(b=None)
+        given_c = curried(c=None)
+        self.assertIsNotNone(given_c)
+
     def test_mutable_args(self):
         def concat(a, b):
             ret = []
