@@ -68,5 +68,31 @@ class CurryTest(unittest.TestCase):
         self.assertEqual('add', add.__name__)
         self.assertEqual('add', add(1).__name__)
 
+    def test_twice(self):
+        times = curry(lambda x, y: x * y)
+        plus = curry(lambda x, y: x + y)
+
+        self.assertEqual(times(3)(times(4)(2)), 24)
+        self.assertEqual(times(5)(times(4)(2)), 40)
+
+        triple = times(3)
+        self.assertEqual(triple(6), 18)
+        triple = times(3)
+        self.assertEqual(triple(20), 60)
+
+        triple = times(3)
+        self.assertEqual(triple(6), 18)
+        self.assertEqual(triple(20), 60)
+
+    def test_embrace(self):
+        def generalEmbrace (prefix, suffix, str):
+            return prefix + str + suffix
+
+        brace = curry(lambda str: generalEmbrace('{', '}', str))
+        bracket = curry(lambda str: generalEmbrace('[', ']', str))
+
+        self.assertEqual(brace("Curry"), "{Curry}");
+        self.assertEqual(bracket("Curry"), "[Curry]");
+
 if __name__ == '__main__':
     unittest.main()
