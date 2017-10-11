@@ -20,9 +20,6 @@ class TestCurry(unittest.TestCase):
         f = curry(math.pow)(2)
         self.assertAlmostEqual(f(4), 16)
 
-        f = curry(''.join)
-        self.assertEqual('123', f(map(str, [1, 2, 3])).call_with_arguments())
-
     def test_attributes(self):
         f = curry(func)(1)(2)(c=10)
 
@@ -66,11 +63,6 @@ class TestCurry(unittest.TestCase):
             return ret
         concat = curry(concat)
         self.assertEqual([1, 2, 3, 4], concat([1, 2])([3, 4]))
-
-    def test_builtin(self):
-        add_1_to_each = curry(map)(lambda x: x + 1)
-        self.assertEqual([2, 3, 4, 5],
-                         list(add_1_to_each([1, 2, 3, 4])))
 
     def test_positional_kwargs(self):
         add_default = curry(lambda a, b=10: a + b)
