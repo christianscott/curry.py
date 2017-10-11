@@ -1,7 +1,7 @@
 """Utility for currying functions."""
 
 from functools import update_wrapper
-from inspect import signature, isclass
+from inspect import signature, isbuiltin, isclass
 
 
 class _CurriedFactory:
@@ -41,7 +41,7 @@ class _CurriedFactory:
     def get_target_arg_count(self):
         callable_ = self.fun
 
-        if isclass(callable_):
+        if isclass(callable_) or isbuiltin(callable_):
             # builtins, e.g. `map`, refer to class rather than fn
             callable_ = callable_.__call__
 
