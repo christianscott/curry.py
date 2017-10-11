@@ -15,6 +15,8 @@ class CurryTest(unittest.TestCase):
     def test_three_args(self):
         add3 = curry(lambda a, b, c: a + b + c)
         self.assertEqual(6, add3(1)(2)(3))
+    def test_argument_check(self):
+        self.assertRaises(TypeError, curry, 1)
 
     def test_args_dont_persist(self):
         add = curry(lambda a, b: a + b)

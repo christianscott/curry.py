@@ -8,6 +8,9 @@ class _CurriedFactory:
     """Return a curried version of the supplied function."""
 
     def __init__(self, fun, args=None, kwargs=None):
+        if not callable(fun):
+            raise TypeError('first argument must be callable')
+
         self.fun = fun
 
         self.args = args if args is not None else tuple()
