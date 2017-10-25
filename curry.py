@@ -4,7 +4,7 @@ from functools import update_wrapper
 from inspect import signature, isbuiltin, isclass
 
 
-class _CurriedFactory:
+class curry:
     """Return a curried version of the supplied function."""
 
     def __init__(self, fun, args=None, kwargs=None):
@@ -32,7 +32,7 @@ class _CurriedFactory:
         next_kwargs = self.kwargs.copy()
         next_kwargs.update(new_kwargs)
 
-        return _CurriedFactory(self.fun, args=next_args, kwargs=next_kwargs)
+        return curry(self.fun, args=next_args, kwargs=next_kwargs)
 
     def has_enough_args(self):
         current_arg_count = len(self.args) + len(self.kwargs)
@@ -50,6 +50,4 @@ class _CurriedFactory:
 
     def call_with_arguments(self):
         return self.fun(*self.args, **self.kwargs)
-
-curry = _CurriedFactory
 
