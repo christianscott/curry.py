@@ -23,9 +23,7 @@ class TestCurry(unittest.TestCase):
     def test_attributes(self):
         f = curry(func)(1)(2)(c=10)
 
-        self.assertEqual(f.fun, func)
-        self.assertEqual(f.args, (1, 2))
-        self.assertEqual(f.kwargs, dict(c=10))
+        self.assertEqual(f.__name__, "func")
 
     def test_argument_check(self):
         self.assertRaises(TypeError, curry, 1)

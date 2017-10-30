@@ -1,53 +1,38 @@
 """Utility for currying functions."""
 
-from functools import update_wrapper
+from functools import wraps
 from inspect import signature, isbuiltin, isclass
 
+def curry(func, args=None, kwargs=None):
+    if not callable(func):
+        raise TypeError('first argument must be callable')
 
-class curry:
-    """Return a curried version of the supplied function."""
+    args = args if args is not None else tuple()
+    kwargs = kwargs if kwargs is not None else dict()
 
-    def __init__(self, fun, args=None, kwargs=None):
-        if not callable(fun):
-            raise TypeError('first argument must be callable')
+    def have_enough_args(next_args, next_kwargs):
+        current_arg_count = len(next_args) + len(next_kwargs)
+        return current_arg_count == get_target_arg_count(func)
 
-        self.fun = fun
-
-        self.args = args if args is not None else tuple()
-        self.kwargs = kwargs if kwargs is not None else dict()
-
-        update_wrapper(self, self.fun)
-
-    def __call__(self, *new_args, **new_kwargs):
-        next_curried = self.create_next_curried(new_args, new_kwargs)
-
-        if next_curried.has_enough_args():
-            return next_curried.call_with_arguments()
-        else:
-            return next_curried
-
-    def create_next_curried(self, new_args, new_kwargs):
-        next_args = self.args + new_args
-
-        next_kwargs = self.kwargs.copy()
+    @wraps(func)
+    def curried(*new_args, **new_kwargs):
+        next_args = args + new_args
+        
+        next_kwargs = kwargs.copy()
         next_kwargs.update(new_kwargs)
 
-        return curry(self.fun, args=next_args, kwargs=next_kwargs)
+        if have_enough_args(next_args, next_kwargs):
+            return func(*next_args, **next_kwargs)
+        return curry(func, args=next_args, kwargs=next_kwargs)
+    
+    return curried
 
-    def has_enough_args(self):
-        current_arg_count = len(self.args) + len(self.kwargs)
-        return current_arg_count == self.get_target_arg_count()
 
-    def get_target_arg_count(self):
-        callable_ = self.fun
+def get_target_arg_count(func):
+    if isclass(func) or isbuiltin(func):
+        # builtins, e.g. `map`, refer to class rather than fn
+        func = func.__call__
 
-        if isclass(callable_) or isbuiltin(callable_):
-            # builtins, e.g. `map`, refer to class rather than fn
-            callable_ = callable_.__call__
-
-        sig = signature(callable_)
-        return len(sig.parameters)
-
-    def call_with_arguments(self):
-        return self.fun(*self.args, **self.kwargs)
+    sig = signature(func)
+    return len(sig.parameters)
 
