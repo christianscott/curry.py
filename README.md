@@ -1,3 +1,5 @@
+**Note:** You probably shouldn't use this. This was created out of curiosity rather than necessity. I can't really imagine any scenarios where `functools.partial` isn't going to cut it. Having said that, if you find any use cases please let me know!
+
 # curry.py
 
 Currying/partial is cool! It helps to make the code we write much DRY-er.
@@ -41,68 +43,55 @@ def main():
 
 # How does it work?
 
-The 'curry' function takes an input object and calls the 'get_arg_count' function. This function checks if the input it receives is a function or a class definition. And based on that, it returns the number of parameters required by the input function/class to execute.
+Essentially, we collect arguments until a certain number is reached, then call the function with the collected arguments.
 
-Now, we use @wraps(fun) to prevent loss of meta data of the function. When a decorator function decorates a decorated function, properties such as __name__ and DocString of the decorated function gets replaced with that of the decorator function. This is less than helpful. To prevent this, we use the @wraps(fun).
-
-This lambda function takes 3 inputs and finds the sum of the three. Our curried function should be able to run 3 times, taking one input at each time.
+Initially, I thought this would be possible using a closure. Assuming we have a way of knowing the number of arguments a function takes (a non-trivial question), we could try something like this (sans kwargs):
 
 ```python
-def curry(fun):
-    '''
-    gets the number of arguments to run the function
-    '''
-    arg_count = get_arg_count(fun)
+def curry(func):
+    args = []
+    def inner(*new_args):
+        args = args + new_args
+        if len(args) == get_arg_count(func): # how does get_arg_count work?
+            return func(*args)
+        return inner
+    return inner
+```
 
-    @wraps(fun)
-    def curried_factory(*initial_args, **initial_kwargs):
-        '''
-        When the curried function is called for the very first time, it creates a list to store the
-        positional arguments and similarly a key-valued structure for the keyword arguments.
-        '''
+Nice and simple. But also horribly wrong. Each call to the curried function will modify the same closure, resulting in this mess:
 
-        args_store = list(initial_args)
-        kwargs_store = initial_kwargs
+```
+>>> add = curry(lambda a, b: a + b)
+>>> add10 = add(10)
+>>> add10(1)
+11
+>>> add10(2)
+<function inner at 0x10a91af28>
+```
 
-        @wraps(fun)
-        def curried(*args, **kwargs):
-            '''
-            On subsequent calls to the curried function, we store the new incoming arguments along
-            with our initial arguments. And since the initial storage is neither in the local nor the
-            global scope we instruct python about the scope using the nonlocal keyword.
-            '''
+Ideally, this would return 12 rather than another function. This happens because `args` now equals `[10, 1, 2]`, which is not equal to the number of args we want, so the function returns `inner` again.
 
-            nonlocal args_store, kwargs_store
+We can fix this by re-currying the original function every time `inner` is called and doesn't have enough args, like this (again, sans support for kwargs to keep things simple):
 
-            '''
-            At this point, we update the initial storage with the new inputs we obtain and we keep doing this
-            until we have enough inputs to actually execute the function.
-            '''
-            kwargs_store.update(kwargs)
-            args_store = args_store + list(args)
+```python
+def curry(func, args=None):
+    original_args = args if args else tuple()
+    def inner(*new_args):
+        next_args = original_args + new_args # no mutation!
+        if len(next_args) == get_arg_count(func):
+            return func(*next_args)
+        return curry(func, args=next_args)
+    return inner
+```
 
-            if len(args_store) + len(kwargs_store) == arg_count:
-                '''
-                If we have enough arguments to run the function, the function gets executed
-                '''
-                return fun(*args_store, **kwargs_store)
-            else:
-                '''
-                else, we repeat the argument collection process until we have enough arguments
-                '''
-                return curried
-
-        return curried
-
-    return curried_factory
- ```
+(more info to come)
 
 # Goals for the project
 
 Features:
 * [x] functions with any number of arguments
-* [ ] works with builtin functions
-* [ ] pass keyword arguments to the curried function
+* [x] works with builtin functions
+* [x] pass keyword arguments to the curried function
 * [x] preserve the name of passed functions
 * [ ] think of some way to tell the function to be called with the arguments it has so far. This would allow for default arguments to be used. There are two approaches that I can think of:
   * `curried(1)(2, done=True)` - has the benefit of being more flexible, can use as many of the default arguments as we like but is a bit less elegant
