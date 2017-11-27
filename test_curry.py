@@ -66,5 +66,13 @@ class TestCurry(unittest.TestCase):
         add_default = curry(lambda a, b=10: a + b)
         self.assertEqual(3, add_default(1)(2))
 
+    def test_done_param(self):
+        add_done = curry(lambda a, b=10: a+b)
+        self.assertEqual(11, add_done(1))
+
+        add_done2 = curry(lambda a,b,c=10: a+b+c)
+        given_b = add_done2(1)
+        self.assertEqual(13, given_b(2))
+
 if __name__ == '__main__':
     unittest.main()
