@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Vi stuff
+*.swp
+
 # C extensions
 *.so
 
