@@ -5,6 +5,11 @@ from curry import curry
 def func(a, b, *, c, d):
     return (a, b), dict(c=c, d=d)
 
+
+def add(a, b):
+    return a + b
+
+
 class TestCurry(unittest.TestCase):
 
     def test_basic_examples(self):
@@ -23,7 +28,7 @@ class TestCurry(unittest.TestCase):
     def test_attributes(self):
         f = curry(func)(1)(2)(c=10)
 
-        self.assertEqual(f.__name__, "func")
+        self.assertEqual(f.__name__, 'func')
 
     def test_argument_check(self):
         self.assertRaises(TypeError, curry, 1)
@@ -66,5 +71,18 @@ class TestCurry(unittest.TestCase):
         add_default = curry(lambda a, b=10: a + b)
         self.assertEqual(3, add_default(1)(2))
 
+    def test_specify_arity(self):
+        from functools import reduce
+
+        sum_ = lambda *xs: reduce(add, xs, 0)
+
+        add_arity_2 = curry(sum_, n=2)
+        self.assertEqual(add_arity_2(10, 10), 20)
+
+        add_ten = add_arity_2(10)
+        self.assertEqual(add_ten(10), 20)
+
+
 if __name__ == '__main__':
     unittest.main()
+

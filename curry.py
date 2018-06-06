@@ -4,7 +4,7 @@ from functools import wraps
 from inspect import signature, isbuiltin, isclass
 
 
-def curry(func, args=None, kwargs=None):
+def curry(func, args=None, kwargs=None, n=None):
     if not callable(func):
         raise TypeError('first argument must be callable')
 
@@ -18,16 +18,18 @@ def curry(func, args=None, kwargs=None):
         next_kwargs = kwargs.copy()
         next_kwargs.update(new_kwargs)
 
-        if have_enough_args(func, next_args, next_kwargs):
+        target_arg_count = n if n is not None else get_target_arg_count(func)
+
+        if current_count(next_args, next_kwargs) == target_arg_count:
             return func(*next_args, **next_kwargs)
-        return curry(func, args=next_args, kwargs=next_kwargs)
+
+        return curry(func, args=next_args, kwargs=next_kwargs, n=n)
     
     return curried
 
 
-def have_enough_args(func, next_args, next_kwargs):
-    current_arg_count = len(next_args) + len(next_kwargs)
-    return current_arg_count == get_target_arg_count(func)
+def current_count(next_args, next_kwargs):
+    return len(next_args) + len(next_kwargs)
 
 
 def get_target_arg_count(func):
