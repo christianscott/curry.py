@@ -1,12 +1,15 @@
 import math
 import unittest
-from curry import curry
+from curry import curry, curry_default
 
 def func(a, b, *, c, d):
     return (a, b), dict(c=c, d=d)
 
 
 def add(a, b):
+    return a + b
+
+def add_default(a, b=10):
     return a + b
 
 
@@ -78,11 +81,17 @@ class TestCurry(unittest.TestCase):
 
         add_arity_2 = curry(sum_, n=2)
         self.assertEqual(add_arity_2(10, 10), 20)
+        self.assertEqual(curry_default(sum_, n=2)(10, 10), 20)
 
         add_ten = add_arity_2(10)
         self.assertEqual(add_ten(10), 20)
 
+    def test_defaults(self):
+
+        self.assertEqual(curry_default(add_default)(20), 30)
+        self.assertEqual(curry_default(add_default)(20, 20), 40)
+        self.assertRaises(TypeError, curry_default(add_default), {20, 40})
+
 
 if __name__ == '__main__':
     unittest.main()
-
