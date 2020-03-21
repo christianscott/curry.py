@@ -1,6 +1,8 @@
 import math
 import unittest
+from functools import reduce
 from curry import curry, curry_default
+
 
 def func(a, b, *, c, d):
     return (a, b), dict(c=c, d=d)
@@ -9,12 +11,12 @@ def func(a, b, *, c, d):
 def add(a, b):
     return a + b
 
+
 def add_default(a, b=10):
     return a + b
 
 
 class TestCurry(unittest.TestCase):
-
     def test_basic_examples(self):
         f = curry(func)
         self.assertEqual(f(1)(2)(c=10)(d=20),
@@ -75,8 +77,6 @@ class TestCurry(unittest.TestCase):
         self.assertEqual(3, add_default(1)(2))
 
     def test_specify_arity(self):
-        from functools import reduce
-
         sum_ = lambda *xs: reduce(add, xs, 0)
 
         add_arity_2 = curry(sum_, n=2)
@@ -87,7 +87,6 @@ class TestCurry(unittest.TestCase):
         self.assertEqual(add_ten(10), 20)
 
     def test_defaults(self):
-
         self.assertEqual(curry_default(add_default)(20), 30)
         self.assertEqual(curry_default(add_default)(20, 20), 40)
         self.assertRaises(TypeError, curry_default(add_default), {20, 40})
