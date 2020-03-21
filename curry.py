@@ -4,8 +4,11 @@ from functools import wraps
 from inspect import signature, isbuiltin, isclass
 
 
-def or_else(x, default):
-    return x if x is not None else default
+def curry(func, args=None, kwargs=None, n=None, use_defaults=False):
+    if use_defaults:
+        return CurriedDefault(func, args, kwargs, n)
+
+    return Curried(func, args, kwargs, n)
 
 
 class Curried:
@@ -47,12 +50,8 @@ class CurriedDefault(Curried):
         return count == self.target_arg_count or count == (self.target_arg_count - count_defaults(self.func))
 
 
-def curry(func, args=None, kwargs=None, n=None):
-    return Curried(func, args, kwargs, n)
-
-
-def curry_default(func, args=None, kwargs=None, n=None):
-    return CurriedDefault(func, args, kwargs, n)
+def or_else(x, default):
+    return x if x is not None else default
 
 
 def current_count(next_args, next_kwargs):

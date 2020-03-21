@@ -1,7 +1,7 @@
 import math
 import unittest
 from functools import reduce
-from curry import curry, curry_default
+from curry import curry
 
 
 def func(a, b, *, c, d):
@@ -81,15 +81,17 @@ class TestCurry(unittest.TestCase):
 
         add_arity_2 = curry(sum_, n=2)
         self.assertEqual(add_arity_2(10, 10), 20)
-        self.assertEqual(curry_default(sum_, n=2)(10, 10), 20)
+
+        self.assertEqual(curry(sum_, n=2, use_defaults=True)(10, 10), 20)
 
         add_ten = add_arity_2(10)
         self.assertEqual(add_ten(10), 20)
 
     def test_defaults(self):
-        self.assertEqual(curry_default(add_default)(20), 30)
-        self.assertEqual(curry_default(add_default)(20, 20), 40)
-        self.assertRaises(TypeError, curry_default(add_default), {20, 40})
+        curried_add = curry(add_default, use_defaults=True)
+        self.assertEqual(curried_add(20), 30)
+        self.assertEqual(curried_add(20, 20), 40)
+        self.assertRaises(TypeError, curried_add, {20, 40})
 
 
 if __name__ == '__main__':
