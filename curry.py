@@ -74,3 +74,4 @@ def get_target_arg_count(func):
 
     sig = signature(func)
     return len(sig.parameters)
+print("hi")
